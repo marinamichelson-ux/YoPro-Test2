@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YoPro Strategic Engine 2026</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'yopro-orange': '#FF4D00',
+                        'yopro-blue': '#0033FF',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- React & Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Framer Motion -->
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .text-stroke {
+            -webkit-text-stroke: 1px rgba(255,255,255,0.2);
+            color: transparent;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #FF4D00; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+        const { motion, AnimatePresence } = FramerMotion;
+
+        // --- ICONS HELPER ---
+        const Icon = ({ name, size = 24, className = "" }) => {
+            useEffect(() => {
+                lucide.createIcons();
+            }, [name]);
+            return <i data-lucide={name} style={{ width: size, height: size }} className={className}></i>;
+        };
+
+        // --- COMPONENTS ---
+
+        const Navigation = ({ currentTab, setTab }) => {
+            const items = [
+                { id: 'research', label: 'Research', icon: 'database' },
+                { id: 'danone', label: 'Danone Hub', icon: 'shield' },
+                { id: 'competitors', label: 'Competitors', icon: 'star' },
+                { id: 'taste', label: 'Taste Lab', icon: 'brain' },
+                { id: 'ideation', label: 'Ideation', icon: 'sparkles' }
+            ];
+
+            return (
+                <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 glass-panel rounded-full px-4 py-2 flex gap-2">
+                    {items.map(item => (
+                        <button
+                            key={item.id}
+                            onClick={() => setTab(item.id)}
+                            className={`p-3 rounded-full transition-all flex items-center gap-2 ${
+                                currentTab === item.id ? 'bg-yopro-orange text-black' : 'text-white/40 hover:text-white'
+                            }`}
+                        >
+                            <Icon name={item.icon} size={18} />
+                            {currentTab === item.id && <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>}
+                        </button>
+                    ))}
+                </nav>
+            );
+        };
+
+        const Research = () => (
+            <div className="space-y-24 pt-12">
+                <section className="border-b border-white/10 pb-12">
+                    <h1 className="text-8xl font-black italic tracking-tighter uppercase leading-[0.8] mb-8">
+                        Strategic<br/><span className="text-yopro-orange">Context</span>
+                    </h1>
+                    <p className="text-xl max-w-2xl opacity-60">The landscape for running and food partnerships has evolved beyond the "free banana." We are now in the era of embedded utility.</p>
+                </section>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="glass-panel p-8 border-t-2 border-yopro-orange">
+                        <h3 className="text-2xl font-black uppercase italic mb-4">Run Club Networking</h3>
+                        <p className="text-sm opacity-50">Post-run rituals are the new LinkedIn. Brands that fuel the conversation, not just the run, win the morning rituals.</p>
+                    </div>
+                    <div className="glass-panel p-8 border-t-2 border-white/20">
+                        <h3 className="text-2xl font-black uppercase italic mb-4">Padel Renaissance</h3>
+                        <p className="text-sm opacity-50">Explosive growth in social sports creates high-frequency protein demand outside the traditional gym environment.</p>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const DanoneHub = () => (
+            <div className="space-y-24 pt-12">
+                <section>
+                    <span className="text-xs font-black text-yopro-orange uppercase tracking-[0.3em] block mb-4">Master Brand Hub</span>
+                    <h2 className="text-7xl font-black uppercase tracking-tighter leading-none mb-12">The Alcaraz Effect</h2>
+                    <div className="grid lg:grid-cols-2 gap-12">
+                        <div className="aspect-video bg-white/5 rounded-2xl overflow-hidden relative border border-white/10">
+                            <img src="https://images.tennis.com/image/upload/t_16_9_l/v1711649232/Carlos_Alcaraz_Yopro_Danone.jpg" className="w-full h-full object-cover grayscale opacity-50" />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="bg-yopro-orange p-4 rounded-full text-black"><Icon name="play" /></div>
+                            </div>
+                        </div>
+                        <div className="space-y-6">
+                            <div className="bg-white/5 p-6 border-l-2 border-yopro-orange">
+                                <h4 className="font-black uppercase text-yopro-orange text-xs mb-2">Social Proof</h4>
+                                <p className="text-lg font-medium italic " >"It's about the reward after the baseline sprints. Carlos brings the sensory joy back to protein."</p>
+                            </div>
+                            <p className="opacity-60 text-sm">Targeting younger, sport-active audiences who value taste and charisma over raw statistics.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        );
+
+        const IdeationBlender = () => {
+            const [loading, setLoading] = useState(false);
+            const [idea, setIdea] = useState(null);
+
+            const variables = {
+                audience: ["Weekend Warrior", "Social Run Clubber", "Performance Marathoner", "Boutique Studio Regular"],
+                tension: ["Functional vs Enjoyment", "Workout = Earned Treat", "Hardest Grinder vs Joyful Resilience"],
+                format: ["Post-Workout Snack", "The Cheesecake Hack Base", "Run Club Recovery Kit"]
+            };
+
+            const generate = () => {
+                setLoading(true);
+                // Demo logic for standalone (In production this calls Gemini)
+                setTimeout(() => {
+                    setIdea({
+                        name: "The Victory Cheesecake Ritual",
+                        insight: "Runners don't want fuel; they want a prize they don't have to apologize for.",
+                        execution: "A pop-up 'Cheat Day' station at the finish line that looks like a luxury patisserie but only serves YoPro hacks.",
+                        potential: 9.8
+                    });
+                    setLoading(false);
+                }, 1500);
+            };
+
+            return (
+                <div className="space-y-12 pt-12">
+                     <h2 className="text-6xl font-black uppercase italic tracking-tighter">Idea Blender</h2>
+                     <div className="grid lg:grid-cols-2 gap-12">
+                        <div className="space-y-8 glass-panel p-12">
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-black uppercase text-white/30 tracking-widest">Audience Focus</label>
+                                <select className="w-full bg-white/5 border border-white/10 p-4 rounded outline-none appearance-none">
+                                    {variables.audience.map(a => <option key={a}>{a}</option>)}
+                                </select>
+                            </div>
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-black uppercase text-white/30 tracking-widest">Core Tension</label>
+                                <select className="w-full bg-white/5 border border-white/10 p-4 rounded outline-none appearance-none">
+                                    {variables.tension.map(a => <option key={a}>{a}</option>)}
+                                </select>
+                            </div>
+                            <button 
+                                onClick={generate} 
+                                className="w-full bg-yopro-orange text-black p-5 font-black uppercase italic tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                            >
+                                {loading ? <Icon name="loader-2" className="animate-spin" /> : <><Icon name="zap" /> Ignite Generator</>}
+                            </button>
+                        </div>
+
+                        <div className="glass-panel p-12 border-2 border-dashed border-white/10 flex items-center justify-center min-h-[400px]">
+                            {idea ? (
+                                <div className="w-full space-y-6">
+                                    <div className="border-b border-yopro-orange pb-4">
+                                        <h3 className="text-3xl font-black uppercase italic">{idea.name}</h3>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <p className="text-sm border-l-2 border-white/20 pl-4 opacity-70"><strong>Insight:</strong> {idea.insight}</p>
+                                        <p className="text-sm border-l-2 border-white/20 pl-4 opacity-70"><strong>Execution:</strong> {idea.execution}</p>
+                                    </div>
+                                    <div className="pt-8 flex items-center justify-between">
+                                        <span className="text-4xl font-black italic text-yopro-orange">{idea.potential}</span>
+                                        <span className="text-[10px] font-black uppercase text-white/30 tracking-widest">Cannes Gold Potential</span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <p className="text-white/20 font-black uppercase italic">Awaiting Ignition</p>
+                            )}
+                        </div>
+                     </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [tab, setTab] = useState('research');
+
+            return (
+                <div className="min-h-screen pb-32 max-w-7xl mx-auto px-6">
+                    <Navigation currentTab={tab} setTab={setTab} />
+                    
+                    <main>
+                        {tab === 'research' && <Research />}
+                        {tab === 'danone' && <DanoneHub />}
+                        {tab === 'ideation' && <IdeationBlender />}
+                        {['competitors', 'taste'].includes(tab) && (
+                            <div className="h-[60vh] flex items-center justify-center text-white/20 uppercase font-black italic">
+                                Section details in full app build...
+                            </div>
+                        )}
+                    </main>
+
+                    <footer className="mt-48 text-center opacity-20 text-[8px] font-mono uppercase tracking-[0.5em]">
+                        YoPro Strategic Engine // Built for Media Futures Group // 2026
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
