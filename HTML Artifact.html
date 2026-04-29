@@ -1,0 +1,338 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YoPro Strategic Engine 2026</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'yopro-orange': '#FF4D00',
+                        'yopro-blue': '#0033FF',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+    <!-- React & Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .text-stroke {
+            -webkit-text-stroke: 1px rgba(255,255,255,0.2);
+            color: transparent;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #FF4D00; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .animate-spin { animation: spin 1s linear infinite; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // ─── INLINE SVG ICONS ───────────────────────────────────────────────────────
+        // Self-contained — no external icon CDN needed
+        const ICON_PATHS = {
+            database:  `<ellipse cx="12" cy="5" rx="9" ry="3"/>
+                        <path d="M3 5v14a9 3 0 0 0 18 0V5"/>
+                        <path d="M3 12a9 3 0 0 0 18 0"/>`,
+            shield:    `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>`,
+            star:      `<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>`,
+            brain:     `<path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/>
+                        <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>`,
+            sparkles:  `<path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                        <path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>`,
+            play:      `<polygon points="5 3 19 12 5 21 5 3"/>`,
+            'loader-2':`<path d="M21 12a9 9 0 1 1-6.219-8.56"/>`,
+            zap:       `<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>`,
+        };
+
+        const Icon = ({ name, size = 24, className = "" }) => (
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width={size}
+                height={size}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={className}
+                dangerouslySetInnerHTML={{ __html: ICON_PATHS[name] || ICON_PATHS['zap'] }}
+            />
+        );
+
+        // ─── NAVIGATION ─────────────────────────────────────────────────────────────
+        const Navigation = ({ currentTab, setTab }) => {
+            const items = [
+                { id: 'research',    label: 'Research',    icon: 'database'  },
+                { id: 'danone',      label: 'Danone Hub',  icon: 'shield'    },
+                { id: 'competitors', label: 'Competitors', icon: 'star'      },
+                { id: 'taste',       label: 'Taste Lab',   icon: 'brain'     },
+                { id: 'ideation',    label: 'Ideation',    icon: 'sparkles'  },
+            ];
+
+            return (
+                <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 glass-panel rounded-full px-4 py-2 flex gap-2">
+                    {items.map(item => (
+                        <button
+                            key={item.id}
+                            onClick={() => setTab(item.id)}
+                            className={`p-3 rounded-full transition-all flex items-center gap-2 ${
+                                currentTab === item.id
+                                    ? 'bg-yopro-orange text-black'
+                                    : 'text-white/40 hover:text-white'
+                            }`}
+                        >
+                            <Icon name={item.icon} size={18} />
+                            {currentTab === item.id && (
+                                <span className="text-[10px] font-black uppercase tracking-widest">
+                                    {item.label}
+                                </span>
+                            )}
+                        </button>
+                    ))}
+                </nav>
+            );
+        };
+
+        // ─── RESEARCH ───────────────────────────────────────────────────────────────
+        const Research = () => (
+            <div className="space-y-24 pt-12">
+                <section className="border-b border-white/10 pb-12">
+                    <h1 className="text-8xl font-black italic tracking-tighter uppercase leading-[0.8] mb-8">
+                        Strategic<br/>
+                        <span className="text-yopro-orange">Context</span>
+                    </h1>
+                    <p className="text-xl max-w-2xl opacity-60">
+                        The landscape for running and food partnerships has evolved beyond the "free banana."
+                        We are now in the era of embedded utility.
+                    </p>
+                </section>
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="glass-panel p-8 border-t-2 border-yopro-orange">
+                        <h3 className="text-2xl font-black uppercase italic mb-4">Run Club Networking</h3>
+                        <p className="text-sm opacity-50">
+                            Post-run rituals are the new LinkedIn. Brands that fuel the conversation,
+                            not just the run, win the morning rituals.
+                        </p>
+                    </div>
+                    <div className="glass-panel p-8 border-t-2 border-white/20">
+                        <h3 className="text-2xl font-black uppercase italic mb-4">Padel Renaissance</h3>
+                        <p className="text-sm opacity-50">
+                            Explosive growth in social sports creates high-frequency protein demand
+                            outside the traditional gym environment.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
+
+        // ─── DANONE HUB ─────────────────────────────────────────────────────────────
+        const DanoneHub = () => (
+            <div className="space-y-24 pt-12">
+                <section>
+                    <span className="text-xs font-black text-yopro-orange uppercase tracking-[0.3em] block mb-4">
+                        Master Brand Hub
+                    </span>
+                    <h2 className="text-7xl font-black uppercase tracking-tighter leading-none mb-12">
+                        The Alcaraz Effect
+                    </h2>
+
+                    <div className="grid lg:grid-cols-2 gap-12">
+                        {/* Campaign video placeholder — swap src with a hosted asset if needed */}
+                        <div className="aspect-video bg-white/5 rounded-2xl overflow-hidden relative border border-white/10 flex flex-col items-center justify-center gap-4">
+                            <div className="bg-yopro-orange p-4 rounded-full text-black">
+                                <Icon name="play" />
+                            </div>
+                            <p className="text-white/30 text-xs uppercase tracking-widest font-black">
+                                Campaign Video
+                            </p>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div className="bg-white/5 p-6 border-l-2 border-yopro-orange">
+                                <h4 className="font-black uppercase text-yopro-orange text-xs mb-2">Social Proof</h4>
+                                <p className="text-lg font-medium italic">
+                                    "It's about the reward after the baseline sprints. Carlos brings
+                                    the sensory joy back to protein."
+                                </p>
+                            </div>
+                            <p className="opacity-60 text-sm">
+                                Targeting younger, sport-active audiences who value taste and
+                                charisma over raw statistics.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        );
+
+        // ─── IDEATION BLENDER ───────────────────────────────────────────────────────
+        const IdeationBlender = () => {
+            const [loading, setLoading] = useState(false);
+            const [idea,    setIdea   ] = useState(null);
+
+            const variables = {
+                audience: [
+                    "Weekend Warrior",
+                    "Social Run Clubber",
+                    "Performance Marathoner",
+                    "Boutique Studio Regular",
+                ],
+                tension: [
+                    "Functional vs Enjoyment",
+                    "Workout = Earned Treat",
+                    "Hardest Grinder vs Joyful Resilience",
+                ],
+            };
+
+            const generate = () => {
+                setLoading(true);
+                // Stub — replace setTimeout body with a Gemini API call in production
+                setTimeout(() => {
+                    setIdea({
+                        name:      "The Victory Cheesecake Ritual",
+                        insight:   "Runners don't want fuel; they want a prize they don't have to apologise for.",
+                        execution: "A pop-up 'Cheat Day' station at the finish line that looks like a luxury patisserie but only serves YoPro hacks.",
+                        potential: 9.8,
+                    });
+                    setLoading(false);
+                }, 1500);
+            };
+
+            return (
+                <div className="space-y-12 pt-12">
+                    <h2 className="text-6xl font-black uppercase italic tracking-tighter">Idea Blender</h2>
+
+                    <div className="grid lg:grid-cols-2 gap-12">
+                        {/* Controls */}
+                        <div className="space-y-8 glass-panel p-12">
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-black uppercase text-white/30 tracking-widest block">
+                                    Audience Focus
+                                </label>
+                                <select className="w-full bg-white/5 border border-white/10 p-4 rounded outline-none appearance-none text-white">
+                                    {variables.audience.map(a => (
+                                        <option key={a} className="bg-black">{a}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-black uppercase text-white/30 tracking-widest block">
+                                    Core Tension
+                                </label>
+                                <select className="w-full bg-white/5 border border-white/10 p-4 rounded outline-none appearance-none text-white">
+                                    {variables.tension.map(a => (
+                                        <option key={a} className="bg-black">{a}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* FIX: was missing the opening Fragment <> before <Icon name="zap"> */}
+                            <button
+                                onClick={generate}
+                                disabled={loading}
+                                className="w-full bg-yopro-orange text-black p-5 font-black uppercase italic tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                {loading ? (
+                                    <Icon name="loader-2" size={20} className="animate-spin" />
+                                ) : (
+                                    <>
+                                        <Icon name="zap" size={20} />
+                                        <span>Ignite Generator</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+
+                        {/* Output */}
+                        <div className="glass-panel p-12 border-2 border-dashed border-white/10 flex items-center justify-center min-h-[400px]">
+                            {idea ? (
+                                <div className="w-full space-y-6">
+                                    <div className="border-b border-yopro-orange pb-4">
+                                        <h3 className="text-3xl font-black uppercase italic">{idea.name}</h3>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <p className="text-sm border-l-2 border-white/20 pl-4 opacity-70">
+                                            <strong>Insight:</strong> {idea.insight}
+                                        </p>
+                                        <p className="text-sm border-l-2 border-white/20 pl-4 opacity-70">
+                                            <strong>Execution:</strong> {idea.execution}
+                                        </p>
+                                    </div>
+                                    <div className="pt-8 flex items-center justify-between">
+                                        <span className="text-4xl font-black italic text-yopro-orange">
+                                            {idea.potential}
+                                        </span>
+                                        <span className="text-[10px] font-black uppercase text-white/30 tracking-widest">
+                                            Cannes Gold Potential
+                                        </span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <p className="text-white/20 font-black uppercase italic">Awaiting Ignition</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ─── APP SHELL ──────────────────────────────────────────────────────────────
+        const App = () => {
+            const [tab, setTab] = useState('research');
+
+            return (
+                <div className="min-h-screen pb-32 max-w-7xl mx-auto px-6">
+                    <Navigation currentTab={tab} setTab={setTab} />
+
+                    <main>
+                        {tab === 'research'    && <Research />}
+                        {tab === 'danone'      && <DanoneHub />}
+                        {tab === 'ideation'    && <IdeationBlender />}
+                        {['competitors', 'taste'].includes(tab) && (
+                            <div className="h-[60vh] flex items-center justify-center text-white/20 uppercase font-black italic text-2xl">
+                                Section coming in full build…
+                            </div>
+                        )}
+                    </main>
+
+                    <footer className="mt-48 text-center opacity-20 text-[8px] font-mono uppercase tracking-[0.5em]">
+                        YoPro Strategic Engine // Built for Media Futures Group // 2026
+                    </footer>
+                </div>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+
+</body></html>
